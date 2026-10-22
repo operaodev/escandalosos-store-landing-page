@@ -1,0 +1,170 @@
+---
+import { getImage } from "astro:assets";
+import { MessageCircleQuestionMark, ChevronDown } from "@lucide/astro";
+
+import SectionTitle from "../components/SectionTitle.astro";
+import helpSource from "../assets/ww-help.webp";
+
+interface Faq {
+    question: string;
+    answer: string;
+}
+
+const faqs: Faq[] = [
+    {
+        question: "¿Cómo hago una recarga?",
+        answer: "Elige tu juego, selecciona el paquete, ingresa tu ID de jugador y paga con Yape, Plin o tarjeta. Procesamos tu pedido al instante.",
+    },
+    {
+        question: "¿Cuánto demora en llegar la recarga?",
+        answer: "La recarga es inmediata. En la mayoría de los casos tus diamantes o pases llegan en menos de 5 minutos.",
+    },
+    {
+        question: "¿Qué métodos de pago aceptan?",
+        answer: "Aceptamos Yape, Plin, Interbank, BCP, PagoEfectivo y tarjetas. Elige el que te resulte más cómodo.",
+    },
+    {
+        question: "¿Dónde encuentro mi ID de jugador?",
+        answer: "Está en tu perfil del juego. En Mobile Legends aparece como «ID» y en Free Fire como «ID de jugador». Solo lo usamos para aplicar la recarga.",
+    },
+    {
+        question: "¿Qué pasa si ingreso un ID incorrecto?",
+        answer: "Escríbenos por WhatsApp antes de pagar y validamos el ID contigo. Así evitamos enviar la recarga a otra cuenta.",
+    },
+    {
+        question: "¿Es seguro comprar aquí?",
+        answer: "Sí. No pedimos contraseñas ni datos de tu cuenta: solo tu ID de jugador y el comprobante de pago.",
+    },
+];
+
+// Mismo criterio que las imagenes de Welcome: variantes generadas en build,
+// src de reserva en el ancho mayor y el navegador elige via srcset.
+const IMAGE_WIDTHS = [360, 540, 720, 900];
+const IMAGE_SIZES = "(min-width: 1024px) 520px, 100vw";
+const width = Math.min(Math.max(...IMAGE_WIDTHS), helpSource.width);
+const height = Math.round((width * helpSource.height) / helpSource.width);
+
+const helpImage = await getImage({
+    src: helpSource,
+    widths: IMAGE_WIDTHS,
+    sizes: IMAGE_SIZES,
+    width,
+    height,
+    quality: 80,
+    format: "webp",
+});
+---
+
+<section id="help">
+    <SectionTitle
+        class="mb-10"
+        eyebrow="Ayuda"
+        icon={MessageCircleQuestionMark}
+        title="Preguntas"
+        highlight="frecuentes"
+        description="Resolvemos tus dudas antes de recargar."
+        accentClass="text-cyan-400"
+    />
+
+    <div class="grid gap-8 lg:grid-cols-2 lg:items-start">
+        <!-- Imagen a la izquierda (solo escritorio) -->
+        <div class="relative hidden lg:block h-[460px]">
+            <img
+                class="absolute inset-0 h-full w-full rounded-3xl object-cover object-top drop-shadow-2xl"
+                src={helpImage.src}
+                srcset={helpImage.srcSet.attribute}
+                sizes={IMAGE_SIZES}
+                width={width}
+                height={height}
+                alt="Ayuda y soporte de Panda Store"
+                loading="lazy"
+                decoding="async"
+            />
+        </div>
+
+        <!-- Acordeones a la derecha -->
+        <div class="relative overflow-hidden rounded-3xl border border-gray-800 bg-gray-900/70 backdrop-blur-sm">
+            <!-- En movil la imagen pasa a ser el fondo del cuadrado -->
+            <img
+                class="absolute inset-0 h-full w-full object-cover object-top opacity-60 lg:hidden"
+                src={helpImage.src}
+                srcset={helpImage.srcSet.attribute}
+                sizes={IMAGE_SIZES}
+                width={width}
+                height={height}
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+                decoding="async"
+            />
+            <div
+                class="pointer-events-none absolute inset-0 bg-gradient-to-br from-gray-950/90 via-gray-950/80 to-gray-950/95 lg:hidden"
+                aria-hidden="true"
+            ></div>
+
+            <div class="relative z-10 divide-y divide-gray-800/80" data-faq>
+                {faqs.map(({ question, answer }, index) => (
+                    <div class="faq-item">
+                        <button
+                            type="button"
+                            id={`faq-trigger-${index}`}
+                            class="flex w-full items-center justify-between gap-4 px-5 py-4 md:px-6 md:py-5 text-left text-sm md:text-base font-semibold text-white transition-colors hover:text-cyan-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/60 focus-visible:ring-inset [&[aria-expanded=true]>svg]:rotate-180"
+                            aria-expanded={index === 0 ? "true" : "false"}
+                            aria-controls={`faq-panel-${index}`}
+                            data-faq-trigger
+                        >
+                            <span>{question}</span>
+                            <ChevronDown class="w-5 h-5 shrink-0 text-cyan-400 transition-transform duration-300" />
+                        </button>
+                        <div
+                            id={`faq-panel-${index}`}
+                            class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-out data-[open=true]:grid-rows-[1fr] motion-reduce:transition-none"
+                            data-open={index === 0 ? "true" : "false"}
+                            aria-hidden={index === 0 ? "false" : "true"}
+                        >
+                            <div class="min-h-0 overflow-hidden">
+                                <p class="px-5 pb-5 md:px-6 text-sm leading-relaxed text-gray-300">
+                                    {answer}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    function initFaq() {
+        const root = document.querySelector<HTMLElement>("[data-faq]");
+        if (!root || root.dataset.faqInit) return;
+        root.dataset.faqInit = "true";
+
+        const triggers = Array.from(
+            root.querySelectorAll<HTMLButtonElement>("[data-faq-trigger]"),
+        );
+
+        triggers.forEach((trigger, index) => {
+            trigger.addEventListener("click", () => {
+                const isOpen = trigger.getAttribute("aria-expanded") === "true";
+
+                triggers.forEach((other, i) => {
+                    const open = i === index ? !isOpen : false;
+                    other.setAttribute("aria-expanded", String(open));
+
+                    const panel = document.getElementById(
+                        other.getAttribute("aria-controls") ?? "",
+                    );
+                    if (panel) {
+                        panel.dataset.open = String(open);
+                        panel.setAttribute("aria-hidden", String(!open));
+                    }
+                });
+            });
+        });
+    }
+
+    initFaq();
+    document.addEventListener("astro:page-load", initFaq);
+</script>

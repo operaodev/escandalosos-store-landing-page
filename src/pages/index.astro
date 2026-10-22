@@ -3,41 +3,40 @@ import Welcome from "../sections/Welcome.astro";
 import AllPackages from "../sections/AllPackages.astro";
 import MostPurchased from "../sections/MostPurchased.astro";
 import Checkout from "../sections/Checkout.astro";
+import Help from "../sections/Help.astro";
 import Layout from "../layouts/Layout.astro";
 import { getHeroAssets } from "../utils/hero-images";
 
 const assets = await getHeroAssets();
 
 const seoTitle =
-    "Escandalosos Store | Recargas de Mobile Legends y Free Fire en Perú";
+    "Panda Store | Recargas de diamantes para Mobile Legends, Free Fire y tus juegos favoritos";
 const seoDescription =
-    "Compra diamantes, pases y paquetes de Mobile Legends y Free Fire al mejor precio. Recarga en segundos con Yape, Plin o tarjeta, validación de ID y entrega inmediata.";
+    "Compra diamantes, pases y paquetes de Mobile Legends, Free Fire y tus juegos favoritos al mejor precio. Recarga en segundos con Yape, Plin o tarjeta, validación de ID y entrega inmediata.";
 ---
 
 <Layout title={seoTitle} description={seoDescription}>
     <Fragment slot="head">
-        {
-            assets.map((game, index) => (
-                <>
-                    <link
-                        rel="preload"
-                        as="image"
-                        imagesrcset={game.background.srcset}
-                        imagesizes={game.background.sizes}
-                        type={game.background.type}
-                        fetchpriority={index === 0 ? "high" : "low"}
-                    />
-                    <link
-                        rel="preload"
-                        as="image"
-                        imagesrcset={game.logo.srcset}
-                        imagesizes={game.logo.sizes}
-                        type={game.logo.type}
-                        fetchpriority={index === 0 ? "high" : "low"}
-                    />
-                </>
-            ))
-        }
+        {assets.map((game, index) => (
+            <>
+                <link
+                    rel="preload"
+                    as="image"
+                    imagesrcset={game.background.srcset}
+                    imagesizes={game.background.sizes}
+                    type={game.background.type}
+                    fetchpriority={index === 0 ? "high" : "low"}
+                />
+                <link
+                    rel="preload"
+                    as="image"
+                    imagesrcset={game.logo.srcset}
+                    imagesizes={game.logo.sizes}
+                    type={game.logo.type}
+                    fetchpriority={index === 0 ? "high" : "low"}
+                />
+            </>
+        ))}
     </Fragment>
 
     <Welcome assets={assets} />
@@ -50,6 +49,7 @@ const seoDescription =
             <MostPurchased />
             <AllPackages />
             <Checkout />
+            <Help />
         </div>
     </div>
 </Layout>
