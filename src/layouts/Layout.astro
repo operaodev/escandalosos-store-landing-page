@@ -3,14 +3,16 @@ import {
     Flame,
     Package,
     ShoppingCart,
-    Gem,
+    PawPrint,
     MessageCircle,
     Phone,
     Wallet,
     Compass,
+    MessageCircleQuestionMark,
 } from "@lucide/astro";
 
 import "../styles/global.css";
+import Contact from "../components/Contact.astro";
 
 const year = new Date().getFullYear();
 
@@ -21,12 +23,13 @@ interface Props {
 }
 
 const {
-    title = "Escandalosos Store | Recargas de diamantes para Mobile Legends y Free Fire",
-    description = "Recarga diamantes, pases y paquetes de Mobile Legends y Free Fire al mejor precio del Perú. Entrega inmediata, pago con Yape, Plin o tarjeta y validación de tu ID antes de comprar.",
+    title = "Panda Store | Recargas de diamantes para Mobile Legends, Free Fire y tus juegos favoritos",
+    description = "Recarga diamantes, pases y paquetes de Mobile Legends, Free Fire y tus juegos favoritos al mejor precio del Perú. Entrega inmediata, pago con Yape, Plin o tarjeta.",
     image = "/og-image.jpg",
 } = Astro.props;
 
-const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin).href;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin)
+    .href;
 const ogImage = new URL(image, Astro.site ?? Astro.url.origin).href;
 
 const keywords = [
@@ -44,7 +47,7 @@ const keywords = [
     "recarga de juegos móviles",
     "tienda de recargas Perú",
     "entrega inmediata de diamantes",
-    "Escandalosos Store",
+    "Panda Store",
 ];
 ---
 
@@ -54,22 +57,32 @@ const keywords = [
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicon-32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicon-16.png"
+        />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="generator" content={Astro.generator} />
 
         <title>{title}</title>
         <meta name="description" content={description} />
         <meta name="keywords" content={keywords.join(", ")} />
-        <meta name="author" content="Escandalosos Store" />
+        <meta name="author" content="Panda Store" />
         <meta name="robots" content="index, follow, max-image-preview:large" />
         <meta name="theme-color" content="#030712" />
         <link rel="canonical" href={canonical} />
 
         <!-- Open Graph -->
         <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="Escandalosos Store" />
+        <meta property="og:site_name" content="Panda Store" />
         <meta property="og:locale" content="es_PE" />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
@@ -77,14 +90,20 @@ const keywords = [
         <meta property="og:image" content={ogImage} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="Escandalosos Store, recargas de diamantes para Mobile Legends y Free Fire" />
+        <meta
+            property="og:image:alt"
+            content="Panda Store, recargas de diamantes para Mobile Legends, Free Fire y tus juegos favoritos"
+        />
 
         <!-- Twitter Card -->
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content={ogImage} />
-        <meta name="twitter:image:alt" content="Escandalosos Store, recargas de diamantes para Mobile Legends y Free Fire" />
+        <meta
+            name="twitter:image:alt"
+            content="Panda Store, recargas de diamantes para Mobile Legends, Free Fire y tus juegos favoritos"
+        />
 
         <slot name="head" />
     </head>
@@ -94,11 +113,11 @@ const keywords = [
                 <a
                     href="#"
                     class="flex items-center gap-2 shrink-0 text-white transition-colors"
-                    aria-label="Escandalosos Store, inicio"
+                    aria-label="Panda Store, inicio"
                 >
-                    <Gem class="w-6 text-cyan-400" />
+                    <PawPrint class="w-6 text-cyan-400" />
                     <span class="font-extrabold uppercase tracking-wider text-xs sm:text-base">
-                        Escandalosos <span class="text-cyan-400">Store</span>
+                        Panda <span class="text-cyan-400">Store</span>
                     </span>
                 </a>
 
@@ -107,16 +126,20 @@ const keywords = [
                     class="flex items-center gap-1 sm:gap-2"
                 >
                     <a href="#most-sold" class="header-link">
-                        <Flame class="w-4 h-4" />
-                        <span class="hidden sm:inline">Más vendidos</span>
+                        <Flame class="w-4 sm:w-5" />
+                        <span class="hidden md:inline">Más vendidos</span>
                     </a>
                     <a href="#all-packages" class="header-link">
-                        <Package class="w-4 h-4" />
-                        <span class="hidden sm:inline">Paquetes</span>
+                        <Package class="w-4 sm:w-5" />
+                        <span class="hidden md:inline">Paquetes</span>
                     </a>
                     <a href="#checkout" class="header-link">
-                        <ShoppingCart class="w-4 h-4" />
-                        <span class="hidden sm:inline">Recargar</span>
+                        <ShoppingCart class="w-4 sm:w-5" />
+                        <span class="hidden md:inline">Recargar</span>
+                    </a>
+                    <a href="#help" class="header-link">
+                        <MessageCircleQuestionMark class="w-4 sm:w-5" />
+                        <span class="hidden md:inline">Ayuda</span>
                     </a>
                 </nav>
             </div>
@@ -133,17 +156,17 @@ const keywords = [
                     <a
                         href="#"
                         class="inline-flex items-center gap-2 text-white transition-colors"
-                        aria-label="Escandalosos Store, inicio"
+                        aria-label="Panda Store, inicio"
                     >
-                        <Gem class="w-7 h-7 text-cyan-400" />
+                        <PawPrint class="w-7 h-7 text-cyan-400" />
                         <span class="font-extrabold uppercase tracking-wider">
-                            Escandalosos{" "}
-                            <span class="text-cyan-400">Store</span>
+                            Panda <span class="text-cyan-400">Store</span>
                         </span>
                     </a>
                     <p class="text-sm text-gray-400 leading-relaxed max-w-xs">
-                        Recargas de diamantes y pases para Mobile Legends y Free
-                        Fire, al mejor precio y con entrega inmediata.
+                        Recargas de diamantes y pases para Mobile Legends, Free
+                        Fire y tus juegos favoritos, al mejor precio y con
+                        entrega inmediata.
                     </p>
                     <a
                         href="https://wa.me/51989106360"
@@ -178,6 +201,12 @@ const keywords = [
                         <li>
                             <a href="#checkout" class="footer-link">
                                 <ShoppingCart class="w-4 h-4" />
+                                Recargar ahora
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#help" class="footer-link">
+                                <MessageCircleQuestionMark class="w-4 h-4" />
                                 Recargar ahora
                             </a>
                         </li>
@@ -231,10 +260,11 @@ const keywords = [
             </div>
 
             <p class="border-t border-gray-800 text-gray-500 text-center py-5 text-sm">
-                &copy; {year} Escandalosos Store. Todos los derechos
-                reservados.
+                &copy; {year} Panda Store. Todos los derechos reservados.
             </p>
         </footer>
+
+        <Contact />
     </body>
 </html>
 
