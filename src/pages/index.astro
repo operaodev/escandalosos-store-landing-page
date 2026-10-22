@@ -1,11 +1,138 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import Welcome from "../sections/Welcome.astro";
+import AllPackages from "../sections/AllPackages.astro";
+import MostPurchased from "../sections/MostPurchased.astro";
+import Checkout from "../sections/Checkout.astro";
+import Layout from "../layouts/Layout.astro";
+import { getHeroAssets } from "../utils/hero-images";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const assets = await getHeroAssets();
+
+const seoTitle =
+    "Escandalosos Store | Recargas de Mobile Legends y Free Fire en Perú";
+const seoDescription =
+    "Compra diamantes, pases y paquetes de Mobile Legends y Free Fire al mejor precio. Recarga en segundos con Yape, Plin o tarjeta, validación de ID y entrega inmediata.";
 ---
 
-<Layout>
-	<Welcome />
+<Layout title={seoTitle} description={seoDescription}>
+    <Fragment slot="head">
+        {
+            assets.map((game, index) => (
+                <>
+                    <link
+                        rel="preload"
+                        as="image"
+                        imagesrcset={game.background.srcset}
+                        imagesizes={game.background.sizes}
+                        type={game.background.type}
+                        fetchpriority={index === 0 ? "high" : "low"}
+                    />
+                    <link
+                        rel="preload"
+                        as="image"
+                        imagesrcset={game.logo.srcset}
+                        imagesizes={game.logo.sizes}
+                        type={game.logo.type}
+                        fetchpriority={index === 0 ? "high" : "low"}
+                    />
+                </>
+            ))
+        }
+    </Fragment>
+
+    <Welcome assets={assets} />
+    <div class="relative w-full bg-gray-950 overflow-hidden" data-spotlight>
+        <div
+            class="absolute inset-0 dot-grid pointer-events-none mask-y-from-90% mask-y-from-black mask-y-to-transparent"
+            aria-hidden="true"
+        ></div>
+        <div class="relative space-y-20 mx-auto w-10/12 md:w-9/12">
+            <MostPurchased />
+            <AllPackages />
+            <Checkout />
+        </div>
+    </div>
 </Layout>
+
+<style>
+    .dot-grid {
+        background-image: radial-gradient(
+            circle at 1px 1px,
+            rgba(255, 255, 255, 0.15) 1px,
+            transparent 0
+        );
+        background-size: 22px 22px;
+    }
+
+    /* Puntos iluminados alrededor del cursor (solo afecta al patrón de puntos) */
+    .dot-grid::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(
+            circle at 1px 1px,
+            rgba(255, 255, 255, 0.38) 1px,
+            transparent 0
+        );
+        background-size: 22px 22px;
+        -webkit-mask-image: radial-gradient(
+            circle 150px at var(--mx, 50%) var(--my, 50%),
+            #000 0%,
+            transparent 100%
+        );
+        mask-image: radial-gradient(
+            circle 150px at var(--mx, 50%) var(--my, 50%),
+            #000 0%,
+            transparent 100%
+        );
+        opacity: 0;
+        transition: opacity 400ms ease;
+    }
+
+    .dot-grid.is-lit::after {
+        opacity: 1;
+    }
+</style>
+
+<script>
+    function initSpotlight() {
+        const section = document.querySelector<HTMLElement>("[data-spotlight]");
+        const grid = section?.querySelector<HTMLElement>(".dot-grid");
+        if (!section || !grid || section.dataset.spotlightInit) return;
+        section.dataset.spotlightInit = "true";
+
+        const state = { x: 0, y: 0, tx: 0, ty: 0, active: false };
+        let frame = 0;
+
+        const render = () => {
+            state.x += (state.tx - state.x) * 0.12;
+            state.y += (state.ty - state.y) * 0.12;
+            grid.style.setProperty("--mx", `${state.x.toFixed(1)}px`);
+            grid.style.setProperty("--my", `${state.y.toFixed(1)}px`);
+            frame = state.active ? requestAnimationFrame(render) : 0;
+        };
+
+        section.addEventListener("pointermove", (e) => {
+            const rect = section.getBoundingClientRect();
+            state.tx = e.clientX - rect.left;
+            state.ty = e.clientY - rect.top;
+            if (!state.active) {
+                state.active = true;
+                state.x = state.tx;
+                state.y = state.ty;
+                grid.classList.add("is-lit");
+                frame = requestAnimationFrame(render);
+            }
+        });
+
+        section.addEventListener("pointerleave", () => {
+            state.active = false;
+            grid.classList.remove("is-lit");
+            cancelAnimationFrame(frame);
+            frame = 0;
+        });
+    }
+
+    initSpotlight();
+    document.addEventListener("astro:page-load", initSpotlight);
+</script>

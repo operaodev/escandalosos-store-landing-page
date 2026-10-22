@@ -1,0 +1,144 @@
+---
+import { Gem, Ticket, Package, Gamepad2, Flame } from "@lucide/astro";
+import type { Product } from "../types";
+
+interface Props {
+    product: Product;
+}
+
+const { product } = Astro.props;
+
+const isDiamond = product.type === "diamantes" || product.type === "dobles";
+const isPass = product.type === "pase";
+const isPackage = product.type === "paquete";
+
+const displayName =
+    product.type === "diamantes"
+        ? /diamante/i.test(product.name)
+            ? product.name
+            : `${product.name} Diamantes`
+        : product.type === "dobles"
+          ? `${product.name} + ${product.name} Diamantes`
+          : product.name;
+---
+
+<a
+    href="#checkout"
+    class={`flex flex-col justify-between
+    border backdrop-blur-xs
+    shadow-lg p-3 sm:p-5 rounded-xl select-none h-full
+    transition-all duration-300 cursor-pointer
+    border-gray-600/50 bg-gray-500/10 hover:border-gray-400/60 hover:bg-gray-500/15 hover:scale-102`}
+    data-select-product
+    data-product-game={product.game}
+    data-product-name={product.name}
+>
+    <header class="flex justify-between items-center">
+        <h2 class="flex items-center gap-2 text-base font-semibold uppercase tracking-wider text-gray-400">
+            <Gamepad2 class="w-6" />
+            {product.game}
+        </h2>
+        {product.isPopular && <Flame class="w-8 h-8 text-fuchsia-500" />}
+    </header>
+    <!-- Contenido principal -->
+    <div class="flex flex-col items-center justify-center text-center mt-4 mb-4">
+        <!-- Icono con glow sutil -->
+        <div class="relative mb-4">
+            <div
+                class={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center border
+                ${
+                    product.isPopular
+                        ? "text-fuchsia-500 bg-fuchsia-500/15 border-fuchsia-500/40"
+                        : "text-cyan-400 border-cyan-500/40 bg-cyan-500/15"
+                }`}
+            >
+                {isDiamond && <Gem class="w-7 h-7 sm:w-8 sm:h-8" />}
+                {isPass && <Ticket class="w-7 h-7 sm:w-8 sm:h-8" />}
+                {isPackage && <Package class="w-7 h-7 sm:w-8 sm:h-8" />}
+            </div>
+        </div>
+
+        <!-- Título y descripción -->
+        <h3 class="text-lg sm:text-xl font-bold text-white tracking-wide mb-2">
+            {displayName}
+        </h3>
+        <p class="text-sm text-gray-400 font-medium leading-relaxed max-w-50">
+            {product.description}
+        </p>
+    </div>
+
+    <!-- Precios -->
+    <div class="mt-auto pt-4 border-t border-gray-600/50">
+        <div class="flex items-end justify-center gap-3">
+            {product.officialPrice && (
+                <div class="flex flex-col items-center">
+                    <span class="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">
+                        Oficial
+                    </span>
+                    <span class="text-base text-gray-300 line-through font-semibold">
+                        S/ {product.officialPrice.toFixed(2)}
+                    </span>
+                </div>
+            )}
+            {product.bonoxsPrice && (
+                <div class="flex flex-col items-center">
+                    <span class="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">
+                        Bonoxs
+                    </span>
+                    <span class="text-base text-gray-300 line-through font-semibold">
+                        S/ {product.bonoxsPrice.toFixed(2)}
+                    </span>
+                </div>
+            )}
+            <div class="flex flex-col items-center text-green-400">
+                <span class="text-xl sm:text-2xl font-black">
+                    S/ {product.price.toFixed(2)}
+                </span>
+            </div>
+        </div>
+    </div>
+</a>
+
+<script>
+    /**
+     * Al pulsar una tarjeta se manda el producto al checkout: el checkout
+     * selecciona ese paquete y deja el juego correspondiente.
+     * El enlace (#checkout) lleva al checkout con el scroll suave del layout.
+     */
+    function initProductCards() {
+        if (document.documentElement.dataset.productCardsInit) return;
+        document.documentElement.dataset.productCardsInit = "true";
+
+        function select(card: HTMLElement) {
+            window.dispatchEvent(
+                new CustomEvent("store:select-product", {
+                    detail: {
+                        game: card.dataset.productGame,
+                        name: card.dataset.productName,
+                    },
+                }),
+            );
+        }
+
+        document.addEventListener("click", (event) => {
+            const card = (event.target as HTMLElement | null)?.closest<HTMLElement>(
+                "[data-select-product]",
+            );
+            if (!card) return;
+
+            select(card);
+
+            // Si ya estamos en #checkout el navegador no vuelve a desplazar:
+            // se repite el scroll suave hacia el checkout.
+            if (location.hash === "#checkout") {
+                event.preventDefault();
+                document
+                    .getElementById("checkout")
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+        });
+    }
+
+    initProductCards();
+    document.addEventListener("astro:page-load", initProductCards);
+</script>

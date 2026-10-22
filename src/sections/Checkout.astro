@@ -1,0 +1,940 @@
+---
+import {
+    ShoppingCart,
+    UserRoundPlus,
+    UserRoundSearch,
+    UserRoundCheck,
+    UserRoundX,
+    Gem,
+    Ticket,
+    Package as PackageIcon,
+    Info,
+    CircleCheck,
+    TriangleAlert,
+    LoaderCircle,
+} from "@lucide/astro";
+import SectionTitle from "../components/SectionTitle.astro";
+import type { ValidatorGame } from "../utils/validatorid-api";
+import type { Product } from "../types/product";
+import { mlbbProducts } from "../types/mlbb-products";
+import { ffProducts } from "../types/ff-products";
+
+interface Props {
+    id?: string;
+    server?: string;
+    game?: ValidatorGame;
+}
+
+const {
+    id: initialId = "",
+    server: initialServer = "",
+    game: initialGame = "ml",
+} = Astro.props;
+
+const games: { id: ValidatorGame; label: string }[] = [
+    { id: "ml", label: "Mobile Legends" },
+    { id: "ff", label: "Free Fire" },
+];
+
+const products: Product[] = [...mlbbProducts, ...ffProducts];
+
+const displayName = (product: Product): string => {
+    const name = product.name.trim();
+    const hasDiamonds = /diamante/i.test(name);
+
+    if (product.type === "diamantes")
+        return hasDiamonds ? name : `${name} Diamantes`;
+    if (product.type === "dobles")
+        return hasDiamonds ? name : `${name} + ${name} Diamantes`;
+    return name;
+};
+
+const typeIcon = (type: Product["type"]) => {
+    if (type === "diamantes" || type === "dobles") return Gem;
+    if (type === "pase") return Ticket;
+    return PackageIcon;
+};
+---
+
+<section id="checkout" class="w-full">
+    <SectionTitle
+        class="mb-10"
+        eyebrow="Recargar ahora"
+        icon={ShoppingCart}
+        title="Realiza tu recarga,"
+        highlight="en segundos"
+        description="Valida tu ID, elige el paquete y completa el pago de forma segura."
+        accentClass="text-green-400"
+    />
+
+    <div class="card-basic rounded-2xl p-4 sm:p-6">
+        <div class="flex flex-col lg:flex-row gap-6">
+            <!-- Formulario -->
+            <form
+                class="flex-1 lg:basis-[30%] min-w-0 min-h-86 rounded-2xl bg-gray-950/40 border border-gray-700/60 p-4 sm:p-5 flex flex-col justify-start gap-5"
+                data-checkout
+                novalidate
+            >
+                <!-- Selector de juego -->
+                <div
+                    class="flex items-center gap-2"
+                    role="tablist"
+                    aria-label="Seleccionar juego"
+                >
+                    {games.map((game) => (
+                        <button
+                            type="button"
+                            role="tab"
+                            data-game-tab={game.id}
+                            class:list={[
+                                "tab-btn",
+                                game.id === initialGame
+                                    ? "bg-green-400 text-gray-950 shadow-sm"
+                                    : "text-gray-400 hover:text-white",
+                            ]}
+                        >
+                            {game.label}
+                        </button>
+                    ))}
+                </div>
+
+                <!-- ID de jugador -->
+                <label class="flex flex-col gap-2">
+                    <span class="text-xs uppercase tracking-wider text-gray-400 font-semibold">
+                        ID de jugador
+                    </span>
+                    <input
+                        type="text"
+                        inputmode="numeric"
+                        autocomplete="off"
+                        placeholder="Ej. 386561821"
+                        value={initialId}
+                        data-id
+                        aria-describedby="checkout-error"
+                        class="w-full bg-gray-950/40 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-green-400 focus:outline-none transition-colors"
+                    />
+                </label>
+
+                <!-- Servidor -->
+                <label class="flex flex-col gap-2" data-server-field>
+                    <span class="text-xs uppercase tracking-wider text-gray-400 font-semibold">
+                        Servidor
+                    </span>
+                    <input
+                        type="text"
+                        inputmode="numeric"
+                        autocomplete="off"
+                        placeholder="Ej. 1035"
+                        value={initialServer}
+                        data-server
+                        aria-describedby="checkout-error"
+                        class="w-full bg-gray-950/40 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:border-green-400 focus:outline-none transition-colors"
+                    />
+                </label>
+
+                <button
+                    type="submit"
+                    data-submit
+                    class="inline-flex items-center justify-center gap-2 rounded-xl bg-green-400 hover:bg-green-300 text-gray-950 font-semibold px-6 py-3 transition-colors active:scale-95 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                    <UserRoundSearch
+                        class="w-5 h-5 shrink-0"
+                        data-submit-icon
+                    />
+                    <LoaderCircle
+                        class="w-5 h-5 shrink-0 hidden animate-spin"
+                        data-submit-spinner
+                    />
+                    <span data-submit-label>Validar ID</span>
+                </button>
+
+                <!-- Mensaje de error / estado -->
+                <div
+                    id="checkout-error"
+                    class="min-h-36 items-start gap-2.5 rounded-xl border border-gray-700/60 bg-gray-950/40 px-3.5 py-3 text-sm text-gray-400"
+                    data-error
+                    role="status"
+                    aria-live="polite"
+                    aria-atomic="true"
+                >
+                    <Info
+                        class="mx-auto mb-2 w-4.5 h-4.5 shrink-0 mt-0.5 text-gray-500"
+                        data-error-icon-info
+                    />
+                    <CircleCheck
+                        class="mx-auto mb-2 w-4.5 h-4.5 shrink-0 mt-0.5 hidden"
+                        data-error-icon-ok
+                    />
+                    <TriangleAlert
+                        class="mx-auto mb-2 w-4.5 h-4.5 shrink-0 mt-0.5 hidden"
+                        data-error-icon-error
+                    />
+                    <div class="min-w-0 flex flex-col gap-1">
+                        <strong
+                            class="font-semibold text-gray-300"
+                            data-error-title
+                        >
+                            Validación de cuenta
+                        </strong>
+                        <span class="text-gray-400/90 leading-relaxed" data-error-text>
+                            Ingresa tu ID para comprobar que la cuenta existe
+                            antes de recargar.
+                        </span>
+                    </div>
+                </div>
+
+            </form>
+
+            <!-- Cuadro de productos -->
+            <aside
+                class="flex-1 lg:basis-[30%] min-w-0 h-128 max-h-128 rounded-2xl bg-gray-950/40 border border-gray-700/60 p-4 sm:p-5 flex flex-col gap-3"
+                data-products-card
+            >
+                <header class="flex items-center justify-between gap-2 shrink-0">
+                    <h3
+                        class="flex items-center gap-2 text-lg font-bold text-white"
+                    >
+                        <PackageIcon class="w-5 h-5" />
+                        Paquetes
+                    </h3>
+                    <span class="text-sm text-gray-400" data-products-count></span>
+                </header>
+
+                <!-- Lista de productos -->
+                <div class="flex-1 min-h-0 flex flex-col" data-products-list>
+                    <div
+                        class="flex-1 min-h-0 overflow-y-auto pr-1 -mx-1 px-1 scrollbar-thin"
+                    >
+                        {
+                            products.map((product) => {
+                                const Icon = typeIcon(product.type);
+                                const name = displayName(product);
+                                return (
+                                    <div
+                                        class="border-b border-gray-700/40 last:border-b-0 pr-2"
+                                        data-product-item
+                                        data-product-game={product.game}
+                                        data-product-name={product.name}
+                                        data-name={name}
+                                        data-description={product.description}
+                                        data-price={product.price}
+                                        hidden={
+                                            product.game !==
+                                            (initialGame === "ml"
+                                                ? "Mobile Legends"
+                                                : "Free Fire")
+                                        }
+                                    >
+                                        <button
+                                            type="button"
+                                            class="w-full flex items-center justify-between gap-3 py-2 text-left transition-colors hover:bg-white/5"
+                                            data-item-trigger
+                                        >
+                                            <span
+                                                class="flex items-center gap-2 min-w-0"
+                                            >
+                                                <Icon class="w-4 h-4 shrink-0 text-cyan-400" />
+                                                <span
+                                                    class="truncate text-base font-semibold text-gray-200"
+                                                    data-item-name
+                                                >
+                                                    {name}
+                                                </span>
+                                            </span>
+                                            <span class="text-base font-bold text-green-400 shrink-0">
+                                                S/ {product.price.toFixed(2)}
+                                            </span>
+                                        </button>
+                                    </div>
+                                );
+                            })
+                        }
+                    </div>
+                </div>
+
+                <!-- Producto seleccionado -->
+                <div class="flex flex-col gap-2 shrink-0" data-summary>
+                    <span
+                        class="text-xs uppercase tracking-wider text-gray-500 font-semibold"
+                    >
+                        Producto seleccionado
+                    </span>
+                    <h4
+                        class="text-base font-bold text-white leading-tight truncate"
+                        data-summary-name
+                    >
+                        Selecciona un paquete
+                    </h4>
+                    <p class="text-xs text-gray-400" data-summary-description></p>
+                    <div class="flex items-end gap-3" data-summary-prices></div>
+                </div>
+
+                <!-- Botón de recarga -->
+                <button
+                    type="button"
+                    data-recharge
+                    disabled
+                    class="w-full shrink-0 inline-flex items-center justify-center gap-2 rounded-xl bg-green-400 hover:bg-green-300 text-gray-950 font-semibold px-4 py-3 transition-colors active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <ShoppingCart class="w-5 h-5" />
+                    <span>Recargar</span>
+                </button>
+            </aside>
+
+            <!-- Cuadro del cliente -->
+            <aside
+                class="flex-1 lg:basis-[30%] min-w-0 rounded-2xl bg-gray-950/40 border border-gray-700/60 p-6 flex flex-col items-center justify-center text-center gap-6"
+                data-player-card
+            >
+                <div class="text-white" data-player-icon>
+                    <UserRoundPlus class="w-20 h-20" data-icon-empty />
+                    <UserRoundSearch
+                        class="w-20 h-20 hidden animate-pulse"
+                        data-icon-loading
+                    />
+                    <UserRoundCheck class="w-20 h-20 hidden" data-icon-ok />
+                    <UserRoundX
+                        class="w-20 h-20 hidden text-red-400"
+                        data-icon-notfound
+                    />
+                </div>
+
+                <div class="w-full flex flex-col items-center gap-2">
+                    <span class="text-xs uppercase tracking-wider text-gray-400 font-semibold">
+                        Nickname
+                    </span>
+                    <input
+                        type="text"
+                        readonly
+                        aria-readonly="true"
+                        placeholder="Sin validar"
+                        data-nickname
+                        class="w-full bg-transparent border-0 border-b border-gray-700 px-0 pb-2 text-center text-2xl font-extrabold text-white placeholder-gray-600 focus:outline-none cursor-default"
+                    />
+                </div>
+
+                <div
+                    class="w-full flex flex-col items-center gap-1 text-sm text-gray-400 min-h-17"
+                >
+                    <span data-meta-hint>
+                        Ingresa tu ID para ver los datos de tu cuenta
+                    </span>
+                    <span class="hidden" data-meta-id></span>
+                    <span class="hidden" data-meta-server></span>
+                    <span class="hidden" data-meta-country></span>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+
+<style>
+    #checkout {
+        overflow-anchor: none;
+    }
+
+    [data-product-item] [data-item-name] {
+        transition: color 200ms ease;
+    }
+
+    [data-product-item].is-selected {
+        background-color: rgb(255 255 255 / 0.05);
+    }
+
+    [data-product-item].is-selected [data-item-name] {
+        color: #fff;
+    }
+
+    /* El aviso cambia de aspecto (info -> error) sin alterar el layout. */
+    [data-error] {
+        border-color: rgb(55 65 81 / 0.6);
+        background-color: rgb(3 7 18 / 0.4);
+        transition:
+            border-color 200ms ease,
+            background-color 200ms ease;
+    }
+
+    [data-error].is-error {
+        border-color: rgb(239 68 68 / 0.4);
+        background-color: rgb(239 68 68 / 0.1);
+    }
+
+    [data-error].is-error [data-error-title] {
+        color: rgb(252 165 165);
+    }
+
+    [data-error].is-error [data-error-text] {
+        color: rgb(254 202 202 / 0.85);
+    }
+
+    [data-error].is-error [data-error-icon-error] {
+        color: rgb(248 113 113);
+    }
+
+    [data-error].is-ok {
+        border-color: rgb(74 222 128 / 0.35);
+        background-color: rgb(74 222 128 / 0.08);
+    }
+
+    [data-error].is-ok [data-error-title] {
+        color: rgb(187 247 208);
+    }
+
+    [data-error].is-ok [data-error-text] {
+        color: rgb(187 247 208 / 0.85);
+    }
+
+    [data-error].is-ok [data-error-icon-ok] {
+        color: rgb(134 239 172);
+    }
+
+    /* Campo marcado como inválido mientras se muestra el error. */
+    [data-id].is-invalid,
+    [data-server].is-invalid {
+        border-color: rgb(239 68 68 / 0.7);
+        background-color: rgb(239 68 68 / 0.06);
+    }
+
+    [data-id].is-invalid:focus,
+    [data-server].is-invalid:focus {
+        border-color: rgb(239 68 68);
+        outline: none;
+    }
+
+    [data-player-card].is-notfound {
+        border-color: rgb(239 68 68 / 0.35);
+    }
+
+    /* El campo servidor se oculta en Free Fire, pero se reserva su alto
+       para que el formulario no cambie de tamaño al cambiar de juego. */
+    [data-server-field].is-hidden {
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    [data-meta-hint].is-error {
+        color: rgb(252 165 165);
+    }
+
+    @keyframes checkout-shake {
+        0%,
+        100% {
+            transform: translateX(0);
+        }
+        20% {
+            transform: translateX(-6px);
+        }
+        40% {
+            transform: translateX(6px);
+        }
+        60% {
+            transform: translateX(-4px);
+        }
+        80% {
+            transform: translateX(4px);
+        }
+    }
+
+    [data-error].is-error {
+        animation: checkout-shake 320ms ease;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        [data-error].is-error {
+            animation: none;
+        }
+    }
+</style>
+
+<script>
+    import { getPlayer, getStoredPlayer, ValidatorError } from "../utils/validatorid-api";
+    import type { ValidatorGame, Player } from "../utils/validatorid-api";
+    import { onGameChange, setGame } from "../utils/game-store";
+    import type { GameId } from "../utils/game-store";
+
+    type CardState = "empty" | "loading" | "ok" | "notfound";
+
+    const WHATSAPP_NUMBER = "51989106360";
+
+    const GAME_LABELS: Record<ValidatorGame, string> = {
+        ml: "Mobile Legends",
+        ff: "Free Fire",
+    };
+
+    const TO_STORE: Record<ValidatorGame, GameId> = {
+        ml: "mlbb",
+        ff: "ff",
+    };
+
+    const FROM_STORE: Record<GameId, ValidatorGame> = {
+        mlbb: "ml",
+        ff: "ff",
+    };
+
+    /** Título y detalle de cada tipo de error de validación. */
+    const ERROR_COPY: Record<
+        string,
+        { title: string; hint: string }
+    > = {
+        not_found: {
+            title: "Jugador no encontrado",
+            hint: "Ese ID no existe o lo has escrito mal. Revisa los dígitos y el servidor e inténtalo de nuevo.",
+        },
+        invalid_input: {
+            title: "Faltan datos",
+            hint: "Completa los campos requeridos para validar tu cuenta.",
+        },
+        network: {
+            title: "Sin conexión",
+            hint: "No pudimos contactar con el servidor de validación. Revisa tu conexión e inténtalo otra vez.",
+        },
+        service: {
+            title: "Servicio con problemas",
+            hint: "El validador no está disponible en este momento. Inténtalo en unos minutos.",
+        },
+        unknown: {
+            title: "No se pudo validar el ID",
+            hint: "Ocurrió un error inesperado. Inténtalo de nuevo.",
+        },
+    };
+
+    function initCheckout() {
+        const root = document.querySelector<HTMLElement>("#checkout");
+        if (!root || root.dataset.checkoutInit) return;
+        root.dataset.checkoutInit = "true";
+
+        const tabs = Array.from(
+            root.querySelectorAll<HTMLButtonElement>("[data-game-tab]"),
+        );
+
+        const q = <T extends Element>(selector: string): T => {
+            const element = root.querySelector<T>(selector);
+            if (!element) throw new Error(`Falta el elemento ${selector}`);
+            return element;
+        };
+
+        const form = q<HTMLFormElement>("[data-checkout]");
+        const idInput = q<HTMLInputElement>("[data-id]");
+        const serverInput = q<HTMLInputElement>("[data-server]");
+        const serverField = q<HTMLElement>("[data-server-field]");
+        const nicknameInput = q<HTMLInputElement>("[data-nickname]");
+        const error = q<HTMLElement>("[data-error]");
+        const errorTitle = q<HTMLElement>("[data-error-title]");
+        const errorText = q<HTMLElement>("[data-error-text]");
+        const errorIcon = q<HTMLElement>("[data-error-icon-info]");
+        const errorIconOk = q<HTMLElement>("[data-error-icon-ok]");
+        const errorIconError = q<HTMLElement>("[data-error-icon-error]");
+        const submit = q<HTMLButtonElement>("[data-submit]");
+        const submitIcon = q<HTMLElement>("[data-submit-icon]");
+        const submitSpinner = q<HTMLElement>("[data-submit-spinner]");
+        const submitLabel = q<HTMLElement>("[data-submit-label]");
+        const iconEmpty = q<HTMLElement>("[data-icon-empty]");
+        const iconLoading = q<HTMLElement>("[data-icon-loading]");
+        const iconOk = q<HTMLElement>("[data-icon-ok]");
+        const iconNotFound = q<HTMLElement>("[data-icon-notfound]");
+        const metaHint = q<HTMLElement>("[data-meta-hint]");
+        const metaId = q<HTMLElement>("[data-meta-id]");
+        const metaServer = q<HTMLElement>("[data-meta-server]");
+        const metaCountry = q<HTMLElement>("[data-meta-country]");
+        const playerCard = q<HTMLElement>("[data-player-card]");
+
+        const items = Array.from(
+            root.querySelectorAll<HTMLElement>("[data-product-item]"),
+        );
+        const summaryName = q<HTMLElement>("[data-summary-name]");
+        const summaryDescription = q<HTMLElement>("[data-summary-description]");
+        const summaryPrices = q<HTMLElement>("[data-summary-prices]");
+        const productsCount = q<HTMLElement>("[data-products-count]");
+        const recharge = q<HTMLButtonElement>("[data-recharge]");
+        const listScroller = q<HTMLElement>("[data-products-list] > div");
+
+        let game: ValidatorGame =
+            (tabs.find((tab) => tab.classList.contains("bg-green-400"))?.dataset
+                .gameTab as ValidatorGame) ?? "ml";
+
+        const activeTab = ["bg-green-400", "text-gray-950", "shadow-sm"];
+        const inactiveTab = ["text-gray-400", "hover:text-white"];
+
+        function setState(state: CardState) {
+            iconEmpty.classList.toggle("hidden", state !== "empty");
+            iconLoading.classList.toggle("hidden", state !== "loading");
+            iconOk.classList.toggle("hidden", state !== "ok");
+            iconNotFound.classList.toggle("hidden", state !== "notfound");
+        }
+
+        /** Muestra (u oculta) el aviso de error con título y detalle. */
+        function setError(code: string, detail?: string) {
+            if (!code) {
+                error.classList.remove("is-error", "is-ok");
+                errorIcon.classList.remove("hidden");
+                errorIconOk.classList.add("hidden");
+                errorIconError.classList.add("hidden");
+                errorTitle.textContent = "Validación de cuenta";
+                errorText.textContent =
+                    "Ingresa tu ID para comprobar que la cuenta existe antes de recargar.";
+                idInput.classList.remove("is-invalid");
+                serverInput.classList.remove("is-invalid");
+                metaHint.classList.remove("is-error");
+                error.setAttribute("role", "status");
+                error.setAttribute("aria-live", "polite");
+                return;
+            }
+
+            const copy = ERROR_COPY[code] ?? ERROR_COPY.unknown;
+            errorTitle.textContent = copy.title;
+            errorText.textContent = detail ?? copy.hint;
+            error.classList.remove("is-ok");
+            error.classList.add("is-error");
+            errorIcon.classList.add("hidden");
+            errorIconOk.classList.add("hidden");
+            errorIconError.classList.remove("hidden");
+            error.setAttribute("role", "alert");
+            error.setAttribute("aria-live", "assertive");
+        }
+
+        /** Aviso verde de cuenta verificada. */
+        function setOk(player: Player) {
+            error.classList.remove("is-error");
+            error.classList.add("is-ok");
+            errorIcon.classList.add("hidden");
+            errorIconOk.classList.remove("hidden");
+            errorIconError.classList.add("hidden");
+            errorTitle.textContent = "Cuenta verificada";
+            errorText.textContent = `Todo listo, ${player.name}. Ya puedes recargar tu paquete.`;
+        }
+
+        /** Resalta los campos que hay que corregir. */
+        function markInvalid(field: "id" | "server" | "both") {
+            idInput.classList.toggle(
+                "is-invalid",
+                field === "id" || field === "both",
+            );
+            serverInput.classList.toggle(
+                "is-invalid",
+                field === "server" || field === "both",
+            );
+        }
+
+        function setLoading(isLoading: boolean) {
+            submit.disabled = isLoading;
+            submitIcon.classList.toggle("hidden", isLoading);
+            submitSpinner.classList.toggle("hidden", !isLoading);
+            submitLabel.textContent = isLoading ? "Validando..." : "Validar ID";
+        }
+
+        function setMeta(current?: Player) {
+            const fields = [metaId, metaServer, metaCountry];
+            fields.forEach((field) => {
+                field.textContent = "";
+                field.classList.add("hidden");
+            });
+
+            if (!current) {
+                metaHint.textContent =
+                    "Ingresa tu ID para ver los datos de tu cuenta";
+                metaHint.classList.remove("hidden");
+                return;
+            }
+
+            metaHint.classList.add("hidden");
+            metaId.textContent = `ID ${current.id}`;
+            metaId.classList.remove("hidden");
+            if (current.server) {
+                metaServer.textContent = `Servidor ${current.server}`;
+                metaServer.classList.remove("hidden");
+            }
+            if (current.country) {
+                metaCountry.textContent = current.country;
+                metaCountry.classList.remove("hidden");
+            }
+        }
+
+        function renderPlayer(next: Player) {
+            nicknameInput.placeholder = "Sin validar";
+            nicknameInput.value = next.name;
+            setMeta(next);
+            setState("ok");
+            playerCard.classList.remove("is-notfound");
+            recharge.disabled = false;
+            setOk(next);
+        }
+
+        function clearResult() {
+            nicknameInput.value = "";
+            nicknameInput.placeholder = "Sin validar";
+            setMeta();
+            setState("empty");
+            playerCard.classList.remove("is-notfound");
+            recharge.disabled = true;
+            setError("");
+        }
+
+        /** Estado cuando la cuenta no existe: la tarjeta lo deja en rojo. */
+        function renderNotFound(message: string) {
+            nicknameInput.value = "";
+            nicknameInput.placeholder = "Cuenta inexistente";
+            setMeta();
+            metaHint.textContent = message;
+            metaHint.classList.remove("hidden");
+            metaHint.classList.add("is-error");
+            setState("notfound");
+            playerCard.classList.add("is-notfound");
+            recharge.disabled = true;
+        }
+
+        function selectProduct(item: HTMLElement) {
+            items.forEach((entry) => {
+                entry.classList.toggle("is-selected", entry === item);
+            });
+
+            const name = item.dataset.name ?? "";
+            const description = item.dataset.description ?? "";
+            const price = Number(item.dataset.price ?? 0);
+
+            summaryName.textContent = name;
+            summaryDescription.textContent = description;
+            summaryPrices.replaceChildren();
+
+            const priceTag = document.createElement("span");
+            priceTag.className = "text-xl font-black text-green-400";
+            priceTag.textContent = `S/ ${price.toFixed(2)}`;
+            summaryPrices.appendChild(priceTag);
+
+            revealItem(item);
+        }
+
+        /** Centra el paquete elegido dentro del scroll interno de la lista. */
+        function revealItem(item: HTMLElement) {
+            const listRect = listScroller.getBoundingClientRect();
+            const itemRect = item.getBoundingClientRect();
+
+            if (itemRect.height === 0 || listRect.height === 0) return;
+
+            const delta = itemRect.top - listRect.top;
+            const outside =
+                delta < 0 || delta + itemRect.height > listRect.height;
+
+            if (!outside) return;
+
+            const target = Math.max(
+                0,
+                listScroller.scrollTop +
+                    delta -
+                    (listRect.height - itemRect.height) / 2,
+            );
+
+            listScroller.scrollTo({ top: target, behavior: "smooth" });
+
+            // Si el scroll suave no avanza, se fuerza el destino.
+            window.setTimeout(() => {
+                if (Math.abs(listScroller.scrollTop - target) > 2) {
+                    listScroller.scrollTo({ top: target, behavior: "instant" });
+                }
+            }, 400);
+        }
+
+        function filterProducts() {
+            const label = GAME_LABELS[game];
+            let visible = 0;
+
+            items.forEach((item) => {
+                const matches = item.dataset.productGame === label;
+                item.hidden = !matches;
+                if (matches) visible += 1;
+            });
+
+            productsCount.textContent = `${visible} paquetes`;
+            return label;
+        }
+
+        function applyGame(next: ValidatorGame) {
+            game = next;
+
+            tabs.forEach((tab) => {
+                const isActive = tab.dataset.gameTab === next;
+                activeTab.forEach((cls) => tab.classList.toggle(cls, isActive));
+                inactiveTab.forEach((cls) =>
+                    tab.classList.toggle(cls, !isActive),
+                );
+            });
+
+            serverField.classList.toggle("is-hidden", next !== "ml");
+            serverInput.disabled = next !== "ml";
+
+            const label = filterProducts();
+            const first = items.find(
+                (item) => item.dataset.productGame === label,
+            );
+
+            if (first) {
+                selectProduct(first);
+            } else {
+                items.forEach((entry) =>
+                    entry.classList.remove("is-selected"),
+                );
+                summaryName.textContent = "Selecciona un paquete";
+                summaryDescription.textContent = "";
+                summaryPrices.replaceChildren();
+            }
+
+            const stored = getStoredPlayer(next);
+            if (stored) {
+                idInput.value = String(stored.id);
+                if (stored.server) serverInput.value = String(stored.server);
+                renderPlayer(stored);
+            } else {
+                clearResult();
+            }
+        }
+
+        items.forEach((item) => {
+            const trigger = item.querySelector<HTMLButtonElement>(
+                "[data-item-trigger]",
+            );
+            trigger?.addEventListener("click", () => selectProduct(item));
+        });
+
+        tabs.forEach((tab) => {
+            tab.addEventListener("click", () => {
+                const next = tab.dataset.gameTab as ValidatorGame;
+                setGame(TO_STORE[next]);
+            });
+        });
+
+        onGameChange((storeGame) => {
+            const next = FROM_STORE[storeGame];
+            if (next !== game) applyGame(next);
+        });
+
+        // Una tarjeta del catálogo (o de más comprados) pide un paquete:
+        // se deja el checkout en ese juego y se selecciona ese producto.
+        window.addEventListener(
+            "store:select-product",
+            (event) => {
+                const detail = (
+                    event as CustomEvent<{ game?: string; name?: string }>
+                ).detail;
+
+                if (!detail?.name) return;
+
+                const next: ValidatorGame =
+                    detail.game === "Free Fire" ? "ff" : "ml";
+
+                setGame(TO_STORE[next]);
+
+                const item = items.find(
+                    (entry) =>
+                        entry.dataset.productName === detail.name &&
+                        entry.dataset.productGame === detail.game,
+                );
+
+                if (item) selectProduct(item);
+            },
+        );
+
+        recharge.addEventListener("click", () => {
+            const id = idInput.value.trim();
+            const server = serverInput.value.trim();
+            const nickname = nicknameInput.value.trim();
+            const product = summaryName.textContent?.trim() ?? "";
+            const price = summaryPrices.textContent?.trim() ?? "";
+
+            const lines = ["Hola, quiero recargar este paquete:"];
+
+            if (product) lines.push(`Producto: ${product}`);
+            if (price) lines.push(`Precio: ${price}`);
+            if (nickname) lines.push(`Nickname: ${nickname}`);
+            if (id) lines.push(`ID de jugador: ${id}`);
+            if (game === "ml" && server)
+                lines.push(`Servidor: ${server}`);
+            lines.push(`Juego: ${GAME_LABELS[game]}`);
+
+            const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(lines.join("\n"))}`;
+            window.open(url, "_blank", "noopener,noreferrer");
+        });
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            setError("");
+            clearResult();
+
+            const id = idInput.value.trim();
+            const server = serverInput.value.trim();
+
+            if (!id) {
+                setError(
+                    "invalid_input",
+                    "Escribe tu ID de jugador para continuar.",
+                );
+                markInvalid("id");
+                idInput.focus();
+                return;
+            }
+
+            if (game === "ml" && !server) {
+                setError(
+                    "invalid_input",
+                    "Mobile Legends necesita el servidor de tu cuenta.",
+                );
+                markInvalid("server");
+                serverInput.focus();
+                return;
+            }
+
+            setLoading(true);
+            nicknameInput.value = "";
+            setMeta();
+            setState("loading");
+            metaHint.textContent = "Buscando tu cuenta...";
+            metaHint.classList.remove("hidden");
+
+            try {
+                const player =
+                    game === "ml"
+                        ? await getPlayer("ml", id, server)
+                        : await getPlayer("ff", id);
+
+                renderPlayer(player);
+            } catch (err) {
+                const code =
+                    err instanceof ValidatorError ? err.code : "unknown";
+
+                if (code === "not_found") {
+                    renderNotFound(
+                        "No encontramos una cuenta con ese ID. Verifica que los datos estén bien escritos.",
+                    );
+                    markInvalid("both");
+                } else {
+                    setState("empty");
+                    metaHint.textContent =
+                        "Ingresa tu ID para ver los datos de tu cuenta";
+                    metaHint.classList.remove("hidden");
+                    metaHint.classList.remove("is-error");
+                }
+
+                setError(
+                    code,
+                    err instanceof Error && code !== "unknown"
+                        ? err.message
+                        : undefined,
+                );
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        // Al escribir se limpia el error anterior para no confundir.
+        [idInput, serverInput].forEach((input) => {
+            input.addEventListener("input", () => {
+                input.classList.remove("is-invalid");
+                if (error.classList.contains("is-error")) setError("");
+            });
+        });
+
+        applyGame(game);
+    }
+
+    initCheckout();
+    document.addEventListener("astro:page-load", initCheckout);
+</script>

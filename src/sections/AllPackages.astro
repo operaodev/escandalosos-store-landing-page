@@ -1,0 +1,112 @@
+---
+import { Package, BadgePercent, CreditCardCheck, Headset } from "@lucide/astro";
+import ProductsGrid from "../components/ProductsGrid.astro";
+import SectionTitle from "../components/SectionTitle.astro";
+import { mlbbProducts } from "../types/mlbb-products";
+import { ffProducts } from "../types/ff-products";
+import { GAME_NAMES, getCatalogGame } from "../utils/game-store";
+
+const products = [...mlbbProducts, ...ffProducts];
+const currentGame = GAME_NAMES[getCatalogGame()];
+---
+
+<section id="all-packages">
+    <!-- Encabezado con título mejorado y contenedor nav al costado -->
+    <div class="flex flex-wrap items-end justify-between gap-6 mb-10">
+        <div>
+            <SectionTitle
+                eyebrow="Todos los paquetes"
+                icon={Package}
+                title="Elige el paquete ideal,"
+                highlight="para ti"
+                description="Diamantes, pases y combos, al mejor precio."
+                accentClass="text-cyan-400"
+                badges={[
+                    { text: "Precios más bajos", icon: BadgePercent },
+                    { text: "Paga con Yape, Plin o tarjeta", icon: CreditCardCheck },
+                    { text: "Soporte personalizado", icon: Headset },
+                ]}
+            />
+        </div>
+
+        <!-- Contenedor nav para alternar entre Mobile Legends y Free Fire -->
+        <nav
+            aria-label="Seleccionar juego"
+            class="flex items-center p-1.5 card-basic rounded-2xl gap-1.5 self-start md:self-auto shadow-md"
+        >
+            <button
+                type="button"
+                class="tab-btn bg-cyan-400 text-gray-950 shadow-sm"
+                data-game-filter="mlbb"
+            >
+                Mobile Legends
+            </button>
+            <button
+                type="button"
+                class="tab-btn text-gray-400 hover:text-white"
+                data-game-filter="ff"
+            >
+                Free Fire
+            </button>
+        </nav>
+    </div>
+
+    <ProductsGrid products={products} filterGame={currentGame} />
+</section>
+
+<script>
+    import {
+        GAME_NAMES,
+        getCatalogGame,
+        onCatalogGameChange,
+        setCatalogGame,
+    } from "../utils/game-store";
+    import type { GameId } from "../utils/game-store";
+
+    function initAllPackages() {
+        const section = document.getElementById("all-packages");
+        if (!section || section.dataset.packagesInit) return;
+        section.dataset.packagesInit = "true";
+
+        const buttons = Array.from(
+            section.querySelectorAll<HTMLButtonElement>("[data-game-filter]"),
+        );
+        const items = Array.from(
+            section.querySelectorAll<HTMLElement>("[data-product-game]"),
+        );
+
+        const activeCls = ["bg-cyan-400", "text-gray-950", "shadow-sm"];
+        const inactiveCls = ["text-gray-400", "hover:text-white"];
+
+        // El catálogo tiene su propio filtro (independiente del checkout):
+        // solo filtra la lista de esta sección.
+        function applyFilter(game: GameId) {
+            const name = GAME_NAMES[game];
+
+            items.forEach((item) => {
+                item.hidden = item.dataset.productGame !== name;
+            });
+
+            buttons.forEach((button) => {
+                const isActive = button.dataset.gameFilter === game;
+                activeCls.forEach((cls) => button.classList.toggle(cls, isActive));
+                inactiveCls.forEach((cls) =>
+                    button.classList.toggle(cls, !isActive),
+                );
+            });
+        }
+
+        buttons.forEach((button) => {
+            button.addEventListener("click", () => {
+                const next = button.dataset.gameFilter as GameId;
+                setCatalogGame(next);
+            });
+        });
+
+        onCatalogGameChange(applyFilter);
+        applyFilter(getCatalogGame());
+    }
+
+    initAllPackages();
+    document.addEventListener("astro:page-load", initAllPackages);
+</script>

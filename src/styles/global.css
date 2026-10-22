@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+/* El header es fijo: las secciones destino deben quedar por debajo. */
+#most-sold,
+#all-packages,
+#checkout {
+    scroll-margin-top: 5rem;
+}
+
+@utility welcome-btn {
+    @apply rounded-lg px-6 py-3 md:py-4
+    font-semibold text-lg md:text-xl w-60
+    active:scale-95 transition-all duration-200 cursor-pointer 
+    flex items-center justify-center gap-2
+    backdrop-blur-md border border-white/25
+    shadow-lg shadow-black/20 hover:border-white/45
+    transform-gpu;
+}
+
+@utility carousel-btn {
+    @apply z-20 p-2 text-white/70 hover:text-white hover:scale-110
+    active:scale-95 transition-all cursor-pointer rounded-full hover:bg-white/10;
+}
+
+@utility tab-btn {
+    @apply px-5 py-2.5 rounded-xl font-bold text-xs md:text-sm
+    transition-all duration-300 cursor-pointer;
+}
+
+@utility card-basic {
+    @apply bg-gray-900 border border-gray-700;
+}
+
+@utility scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-green-500) transparent;
+
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: var(--color-green-500);
+        border-radius: 9999px;
+        border: 2px solid transparent;
+        background-clip: content-box;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: var(--color-green-400);
+    }
+}

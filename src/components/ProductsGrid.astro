@@ -1,0 +1,26 @@
+---
+import type { Product } from "../types";
+import ProductCard from "./ProductCard.astro";
+
+interface Props {
+    products: Product[];
+    /** Nombre del juego a mostrar; oculta los productos de los demás. */
+    filterGame?: string;
+}
+
+const { products, filterGame } = Astro.props;
+---
+
+<div class="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4">
+    {
+        products.map((product) => (
+            <div
+                class="h-full"
+                data-product-game={product.game}
+                hidden={filterGame ? product.game !== filterGame : undefined}
+            >
+                <ProductCard product={product} />
+            </div>
+        ))
+    }
+</div>

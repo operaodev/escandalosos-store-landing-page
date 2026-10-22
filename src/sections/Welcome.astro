@@ -1,0 +1,293 @@
+---
+import type { HeroGameAssets } from "../utils/hero-images";
+
+import {
+    ShoppingCart,
+    Package,
+    ChevronLeft,
+    ChevronRight,
+    ChevronDown,
+} from "@lucide/astro";
+
+interface Props {
+    assets: HeroGameAssets[];
+}
+
+interface Game extends HeroGameAssets {
+    name: string;
+    highlightClass: string;
+    btnClass: string;
+}
+
+const { assets } = Astro.props;
+
+const games: Game[] = [
+    {
+        ...assets[0],
+        name: "Mobile Legends: Bang Bang",
+        highlightClass: "text-yellow-400",
+        btnClass: "text-yellow-200 bg-yellow-400/15 hover:bg-yellow-400/25",
+    },
+    {
+        ...assets[1],
+        name: "Free Fire",
+        highlightClass: "text-orange-500",
+        btnClass: "text-orange-300 bg-orange-500/15 hover:bg-orange-500/25",
+    },
+];
+---
+
+<div id="container">
+    <main class="relative w-full flex items-center justify-center min-h-dvh overflow-hidden select-none bg-gray-950">
+        <!-- Fondos con transición -->
+        <div class="absolute inset-0 mask-y-from-30% mask-y-from-black mask-y-to-transparent pointer-events-none">
+            {games.map((game, index) => (
+                <img
+                    class={`carousel-bg absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ease-in-out ${index === 0 ? "opacity-100" : "opacity-0"}`}
+                    src={game.background.src}
+                    srcset={game.background.srcset}
+                    sizes={game.background.sizes}
+                    width={game.background.width}
+                    height={game.background.height}
+                    alt={game.name}
+                    data-index={index}
+                    loading="eager"
+                    decoding={index === 0 ? "sync" : "async"}
+                    fetchpriority={index === 0 ? "high" : "low"}
+                />
+            ))}
+        </div>
+
+        <!-- Botón Anterior -->
+        <button
+            id="carousel-prev"
+            aria-label="Juego anterior"
+            class="carousel-btn left-2 md:left-6"
+        >
+            <ChevronLeft class="w-10 h-10 md:w-14 md:h-14" />
+        </button>
+
+        <!-- Contenido del carrusel en CSS Grid con distribución horizontal equilibrada -->
+        <div class="z-10 grid grid-cols-1 grid-rows-1 w-11/12 md:w-10/12 max-w-7xl mx-auto items-center">
+            {games.map((game, index) => (
+                <div
+                    class={`
+                    carousel-slide col-start-1 row-start-1
+                    flex justify-between items-center flex-wrap md:flex-nowrap
+                    gap-y-8 md:gap-x-12 lg:gap-x-16 w-full
+                    ${index === 0 ? "z-10 pointer-events-auto" : "z-0 pointer-events-none"}
+                    `}
+                    data-index={index}
+                    data-game={game.id}
+                    data-active={index === 0 ? "true" : "false"}
+                >
+                    <p
+                        class={`carousel-fade text-white text-center md:text-start text-4xl md:text-6xl lg:text-8xl font-bold leading-tight w-full ${index === 0 ? "opacity-100" : "opacity-0"}`}
+                    >
+                        Recarga fácil,{" "}
+                        <strong class={`${game.highlightClass} uppercase`}>
+                            ahorra más
+                        </strong>{" "}
+                        y juega sin límites.
+                    </p>
+
+                    <section class="flex flex-col justify-center items-center gap-8 md:gap-8 w-full md:w-1/2">
+                        <img
+                            class={`carousel-fade h-auto min-w-50 md:max-w-sm drop-shadow-lg max-h-36 object-contain ${index === 0 ? "opacity-100" : "opacity-0"}`}
+                            src={game.logo.src}
+                            srcset={game.logo.srcset}
+                            sizes={game.logo.sizes}
+                            width={game.logo.width}
+                            height={game.logo.height}
+                            alt={`Logo de ${game.name}`}
+                            loading="eager"
+                            decoding="async"
+                            fetchpriority={index === 0 ? "high" : "low"}
+                        />
+
+                        <section class="flex flex-wrap items-center justify-center gap-4">
+                            <a
+                                href="#checkout"
+                                class={`welcome-btn carousel-fade ${game.btnClass} ${index === 0 ? "opacity-100" : "opacity-0"}`}
+                                data-go-checkout
+                            >
+                                <ShoppingCart />
+                                <span>Recargar Ahora</span>
+                            </a>
+                            <a
+                                href="#all-packages"
+                                class={`welcome-btn carousel-fade text-white bg-white/10 hover:bg-white/20 ${index === 0 ? "opacity-100" : "opacity-0"}`}
+                                data-go-packages
+                            >
+                                <Package />
+                                <span>Ver Paquetes</span>
+                            </a>
+                        </section>
+                    </section>
+                </div>
+            ))}
+        </div>
+
+        <!-- Botón Siguiente -->
+        <button
+            id="carousel-next"
+            aria-label="Siguiente juego"
+            class="carousel-btn right-2 md:right-6"
+        >
+            <ChevronRight class="w-10 h-10 md:w-14 md:h-14" />
+        </button>
+
+        <!-- Chevron Down: desplazarse a la siguiente sección -->
+        <a
+            href="#most-sold"
+            aria-label="Ir a la siguiente sección"
+            class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 text-white/60 hover:text-white transition-all duration-300 hover:scale-110 active:scale-95 animate-bounce cursor-pointer p-2"
+        >
+            <ChevronDown class="w-8 h-8 md:w-10 md:h-10" />
+        </a>
+    </main>
+</div>
+
+<style>
+    /* El slide se oculta con visibility (no opacity) para no crear un
+       backdrop root: si el contenedor tuviera opacity < 1, los botones
+       con backdrop-filter dejarian de muestrear el fondo y el blur
+       apareceria tarde al cambiar de slide. */
+    .carousel-slide {
+        visibility: hidden;
+        transition: visibility 0s linear 500ms;
+    }
+
+    .carousel-slide[data-active="true"] {
+        visibility: visible;
+        transition-delay: 0s;
+    }
+
+    .carousel-fade {
+        transition: opacity 500ms ease-in-out;
+    }
+
+    .welcome-btn.carousel-fade {
+        transition-property:
+            opacity, transform, background-color, border-color, color;
+        transition-duration: 500ms, 200ms, 200ms, 200ms, 200ms;
+        transition-timing-function: ease-in-out, ease, ease, ease, ease;
+    }
+</style>
+
+<script>
+    import { setCatalogGame, setGame } from "../utils/game-store";
+    import type { GameId } from "../utils/game-store";
+
+    /**
+     * El navegador aplaza el decodificado de las imagenes que no se estan
+     * pintando (los slides y fondos con opacity-0), por eso la segunda
+     * imagen tardaba en aparecer y el fondo se veía negro al volver del
+     * scroll. `decode()` obliga a tener el bitmap listo antes de que el
+     * usuario cambie de juego.
+     */
+    function prewarmImages() {
+        document
+            .querySelectorAll<HTMLImageElement>(".carousel-bg, img.carousel-fade")
+            .forEach((img) => {
+                if (typeof img.decode !== "function") return;
+                img.decode().catch(() => {});
+            });
+    }
+
+    function initCarousel() {
+        const container = document.getElementById("container");
+        const slides =
+            document.querySelectorAll<HTMLElement>(".carousel-slide");
+        const backgrounds =
+            document.querySelectorAll<HTMLElement>(".carousel-bg");
+        const prevBtn = document.getElementById("carousel-prev");
+        const nextBtn = document.getElementById("carousel-next");
+
+        if (!slides.length || !container || container.dataset.carouselInit)
+            return;
+        container.dataset.carouselInit = "true";
+
+        let currentIndex = 0;
+        const totalSlides = slides.length;
+
+        function updateSlide(newIndex: number) {
+            currentIndex = (newIndex + totalSlides) % totalSlides;
+
+            slides.forEach((slide, i) => {
+                const isActive = i === currentIndex;
+
+                slide.dataset.active = isActive ? "true" : "false";
+                slide.classList.toggle("z-10", isActive);
+                slide.classList.toggle("z-0", !isActive);
+                slide.classList.toggle("pointer-events-auto", isActive);
+                slide.classList.toggle("pointer-events-none", !isActive);
+
+                slide
+                    .querySelectorAll<HTMLElement>(".carousel-fade")
+                    .forEach((el) => {
+                        el.classList.toggle("opacity-100", isActive);
+                        el.classList.toggle("opacity-0", !isActive);
+                    });
+            });
+
+            backgrounds.forEach((bg, i) => {
+                if (i === currentIndex) {
+                    bg.classList.remove("opacity-0");
+                    bg.classList.add("opacity-100");
+                } else {
+                    bg.classList.remove("opacity-100");
+                    bg.classList.add("opacity-0");
+                }
+            });
+
+            // El carrusel solo cambia de slide: cada sección (catálogo o
+            // checkout) cambia de juego con su propio botón.
+        }
+
+        prevBtn?.addEventListener("click", () => updateSlide(currentIndex - 1));
+        nextBtn?.addEventListener("click", () => updateSlide(currentIndex + 1));
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowLeft") updateSlide(currentIndex - 1);
+            if (e.key === "ArrowRight") updateSlide(currentIndex + 1);
+        });
+
+        function slideGame(link: HTMLElement): GameId | undefined {
+            const slide = link.closest<HTMLElement>(".carousel-slide");
+            return slide?.dataset.game as GameId | undefined;
+        }
+
+        // "Ver Paquetes": cambia solo el filtro del catálogo y lleva a esa
+        // sección; no toca el checkout.
+        document
+            .querySelectorAll<HTMLElement>("[data-go-packages]")
+            .forEach((link) => {
+                link.addEventListener("click", () => {
+                    const game = slideGame(link);
+                    if (game) setCatalogGame(game);
+                });
+            });
+
+        // "Recargar Ahora": deja el checkout con el juego del slide y lleva
+        // a la sección de recarga.
+        document
+            .querySelectorAll<HTMLElement>("[data-go-checkout]")
+            .forEach((link) => {
+                link.addEventListener("click", () => {
+                    const game = slideGame(link);
+                    if (game) setGame(game);
+                });
+            });
+
+        updateSlide(currentIndex);
+        prewarmImages();
+    }
+
+    initCarousel();
+    prewarmImages();
+    document.addEventListener("astro:page-load", () => {
+        initCarousel();
+        prewarmImages();
+    });
+</script>

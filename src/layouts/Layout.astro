@@ -1,23 +1,318 @@
+---
+import {
+    Flame,
+    Package,
+    ShoppingCart,
+    Gem,
+    MessageCircle,
+    Phone,
+    Wallet,
+    Compass,
+} from "@lucide/astro";
+
+import "../styles/global.css";
+
+const year = new Date().getFullYear();
+
+interface Props {
+    title?: string;
+    description?: string;
+    image?: string;
+}
+
+const {
+    title = "Escandalosos Store | Recargas de diamantes para Mobile Legends y Free Fire",
+    description = "Recarga diamantes, pases y paquetes de Mobile Legends y Free Fire al mejor precio del Perú. Entrega inmediata, pago con Yape, Plin o tarjeta y validación de tu ID antes de comprar.",
+    image = "/og-image.jpg",
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin).href;
+const ogImage = new URL(image, Astro.site ?? Astro.url.origin).href;
+
+const keywords = [
+    "recargas mobile legends",
+    "recarga free fire",
+    "comprar diamantes mobile legends",
+    "comprar diamantes free fire",
+    "pase semanal mobile legends",
+    "pase mensual mobile legends",
+    "pase VIP free fire",
+    "recargar diamantes Perú",
+    "diamantes MLBB barato",
+    "diamantes Free Fire barato",
+    "pagar con Yape",
+    "recarga de juegos móviles",
+    "tienda de recargas Perú",
+    "entrega inmediata de diamantes",
+    "Escandalosos Store",
+];
+---
+
 <!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
+<html lang="es-PE">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <meta name="generator" content={Astro.generator} />
+
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <meta name="keywords" content={keywords.join(", ")} />
+        <meta name="author" content="Escandalosos Store" />
+        <meta name="robots" content="index, follow, max-image-preview:large" />
+        <meta name="theme-color" content="#030712" />
+        <link rel="canonical" href={canonical} />
+
+        <!-- Open Graph -->
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Escandalosos Store" />
+        <meta property="og:locale" content="es_PE" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Escandalosos Store, recargas de diamantes para Mobile Legends y Free Fire" />
+
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={ogImage} />
+        <meta name="twitter:image:alt" content="Escandalosos Store, recargas de diamantes para Mobile Legends y Free Fire" />
+
+        <slot name="head" />
+    </head>
+    <body class="bg-gray-950">
+        <header class="fixed top-0 inset-x-0 z-50" data-header>
+            <div class="mx-auto w-10/12 md:w-9/12 h-16 flex items-center justify-between gap-3">
+                <a
+                    href="#"
+                    class="flex items-center gap-2 shrink-0 text-white transition-colors"
+                    aria-label="Escandalosos Store, inicio"
+                >
+                    <Gem class="w-6 text-cyan-400" />
+                    <span class="font-extrabold uppercase tracking-wider text-xs sm:text-base">
+                        Escandalosos <span class="text-cyan-400">Store</span>
+                    </span>
+                </a>
+
+                <nav
+                    aria-label="Navegación principal"
+                    class="flex items-center gap-1 sm:gap-2"
+                >
+                    <a href="#most-sold" class="header-link">
+                        <Flame class="w-4 h-4" />
+                        <span class="hidden sm:inline">Más vendidos</span>
+                    </a>
+                    <a href="#all-packages" class="header-link">
+                        <Package class="w-4 h-4" />
+                        <span class="hidden sm:inline">Paquetes</span>
+                    </a>
+                    <a href="#checkout" class="header-link">
+                        <ShoppingCart class="w-4 h-4" />
+                        <span class="hidden sm:inline">Recargar</span>
+                    </a>
+                </nav>
+            </div>
+        </header>
+
+        <div class="space-y-30">
+            <slot />
+        </div>
+
+        <footer class="mt-10 bg-gray-900 border-t border-cyan-400/20">
+            <div class="mx-auto w-10/12 md:w-9/12 py-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+                <!-- Marca -->
+                <div class="space-y-4">
+                    <a
+                        href="#"
+                        class="inline-flex items-center gap-2 text-white transition-colors"
+                        aria-label="Escandalosos Store, inicio"
+                    >
+                        <Gem class="w-7 h-7 text-cyan-400" />
+                        <span class="font-extrabold uppercase tracking-wider">
+                            Escandalosos{" "}
+                            <span class="text-cyan-400">Store</span>
+                        </span>
+                    </a>
+                    <p class="text-sm text-gray-400 leading-relaxed max-w-xs">
+                        Recargas de diamantes y pases para Mobile Legends y Free
+                        Fire, al mejor precio y con entrega inmediata.
+                    </p>
+                    <a
+                        href="https://wa.me/51989106360"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center gap-2 text-sm font-semibold text-cyan-400 hover:text-cyan-300 transition-colors"
+                    >
+                        <MessageCircle class="w-4 h-4" />
+                        Soporte por WhatsApp
+                    </a>
+                </div>
+
+                <!-- Navegación -->
+                <nav aria-label="Navegación del pie" class="space-y-4">
+                    <h2 class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-cyan-400">
+                        <Compass class="w-4 h-4" />
+                        Navegación
+                    </h2>
+                    <ul class="space-y-2.5">
+                        <li>
+                            <a href="#most-sold" class="footer-link">
+                                <Flame class="w-4 h-4" />
+                                Más vendidos
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#all-packages" class="footer-link">
+                                <Package class="w-4 h-4" />
+                                Todos los paquetes
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#checkout" class="footer-link">
+                                <ShoppingCart class="w-4 h-4" />
+                                Recargar ahora
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
+                <!-- Métodos de pago -->
+                <div class="space-y-4">
+                    <h2 class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-cyan-400">
+                        <Wallet class="w-4 h-4" />
+                        Métodos de pago
+                    </h2>
+                    <ul class="space-y-2.5 text-sm text-gray-400">
+                        <li>Yape</li>
+                        <li>Plin</li>
+                        <li>Interbank</li>
+                        <li>BCP</li>
+                        <li>PagoEfectivo</li>
+                    </ul>
+                </div>
+
+                <!-- Contacto -->
+                <div class="space-y-4">
+                    <h2 class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-cyan-400">
+                        <Phone class="w-4 h-4" />
+                        Contacto
+                    </h2>
+                    <ul class="space-y-2.5">
+                        <li>
+                            <a
+                                href="https://wa.me/51903512528"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="footer-link"
+                            >
+                                +51 903 512 528
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                                href="https://wa.me/51989106360"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="footer-link"
+                            >
+                                +51 989 106 360
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <p class="border-t border-gray-800 text-gray-500 text-center py-5 text-sm">
+                &copy; {year} Escandalosos Store. Todos los derechos
+                reservados.
+            </p>
+        </footer>
+    </body>
 </html>
 
 <style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
+    html,
+    body {
+        margin: 0;
+        width: 100%;
+        /* min-height (y no height) para que el documento mida lo que el
+           contenido: con height: 100% el scroll suave se corta a mitad. */
+        min-height: 100%;
+        scroll-behavior: smooth;
+    }
+
+    [data-header] {
+        background-color: transparent;
+        border-bottom: 1px solid transparent;
+        backdrop-filter: none;
+        transition:
+            background-color 300ms ease,
+            border-color 300ms ease,
+            backdrop-filter 300ms ease;
+    }
+
+    /* Efecto glass apenas se empieza a hacer scroll. */
+    [data-header].is-scrolled {
+        background-color: rgb(9 9 11 / 0.6);
+        border-bottom-color: rgb(255 255 255 / 0.08);
+        backdrop-filter: blur(14px);
+    }
+
+    .header-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--color-gray-300);
+        transition:
+            color 200ms ease,
+            background-color 200ms ease;
+    }
+
+    .header-link:hover {
+        color: var(--color-white);
+        background-color: rgb(255 255 255 / 0.08);
+    }
+
+    .footer-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--color-gray-400);
+        transition: color 200ms ease;
+    }
+
+    a.footer-link:hover {
+        color: var(--color-cyan-400);
+    }
 </style>
+
+<script>
+    function initHeader() {
+        const header = document.querySelector<HTMLElement>("[data-header]");
+        if (!header || header.dataset.headerInit) return;
+        header.dataset.headerInit = "true";
+
+        const update = () => {
+            header.classList.toggle("is-scrolled", window.scrollY > 8);
+        };
+
+        update();
+        window.addEventListener("scroll", update, { passive: true });
+    }
+
+    initHeader();
+    document.addEventListener("astro:page-load", initHeader);
+</script>

@@ -1,0 +1,66 @@
+---
+import Bagde from "./Bagde.astro";
+import type { Flame } from "@lucide/astro";
+
+type Icon = typeof Flame;
+
+export interface SectionBadge {
+    text: string;
+    icon?: Icon;
+}
+
+interface Props {
+    title: string;
+    highlight?: string;
+    description?: string;
+    eyebrow?: string;
+    icon?: Icon;
+    badges?: SectionBadge[];
+    accentClass?: string;
+    class?: string;
+}
+
+const {
+    title,
+    highlight,
+    description,
+    eyebrow,
+    icon: EyebrowIcon,
+    badges = [],
+    accentClass = "text-fuchsia-500",
+    class: className = "",
+} = Astro.props;
+---
+
+<div class:list={["space-y-4", className]}>
+    {eyebrow && (
+        <div
+            class:list={[
+                "inline-flex items-center gap-2 px-3 py-1 rounded-full font-semibold tracking-wider uppercase",
+                accentClass,
+            ]}
+        >
+            {EyebrowIcon && <EyebrowIcon />}
+            <span>{eyebrow}</span>
+        </div>
+    )}
+
+    <h2 class="text-2xl md:text-4xl font-extrabold text-white tracking-tight">
+        {title}
+        {highlight && <strong class={accentClass}> {highlight}</strong>}
+    </h2>
+
+    {description && (
+        <p class="text-gray-300 text-sm md:text-base -mt-2">{description}</p>
+    )}
+
+    {badges.length > 0 && (
+        <div class="flex justify-start gap-2 flex-wrap">
+            {badges.map(({ text, icon: BadgeIcon }) => (
+                <Bagde text={text} className={accentClass}>
+                    {BadgeIcon && <BadgeIcon />}
+                </Bagde>
+            ))}
+        </div>
+    )}
+</div>

@@ -1,0 +1,26 @@
+---
+import { Flame, Zap, ShieldCheck } from "@lucide/astro";
+import ProductsGrid from "../components/ProductsGrid.astro";
+import SectionTitle from "../components/SectionTitle.astro";
+import { mlbbProducts } from "../types/mlbb-products";
+
+// 3 productos del array + el pase mensual
+const mostSold = [...mlbbProducts.filter((p) => p.isPopular)];
+---
+
+<section id="most-sold">
+    <SectionTitle
+        class="mb-10"
+        eyebrow="Más Vendidos"
+        icon={Flame}
+        title="Tus recargas favoritas,"
+        highlight="al mejor precio"
+        description="Lo más pedido por los jugadores con entrega inmediata y 100% segura."
+        accentClass="text-fuchsia-500"
+        badges={[
+            { text: "Entrega inmediata", icon: Zap },
+            { text: "Seguro y confiable", icon: ShieldCheck },
+        ]}
+    />
+    <ProductsGrid products={mostSold} />
+</section>
